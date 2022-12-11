@@ -12,7 +12,6 @@ class Node {
   public:
     Node();
     itemType item;
-    int height;
     int balance;
 
     Node* right;
@@ -25,15 +24,20 @@ class AVL_Tree {
   AVL_Tree();
   ~AVL_Tree();
 
+  // Insert the item.
   void insert(itemType item);
+  //Remove the item.
   void remove(keyType key);
+  // Modes: (0) pre-order; (1) in-order; (2) pos-order; (3) level-order.
   void walk(int mode);
+  // Search the the key.
   itemType search(keyType key);
+  // Clean the tree.
   void clean();
 
  private:
   void recursiveInsert(Node*& n, Node* parent, itemType item);
-  void recursiveRemove(Node*& n, keyType key);
+  void recursiveRemove(Node*& n, const keyType key);
   itemType recursiveSearch(Node* n, keyType key);
   void recursiveClean(Node* n);
   void levelOrder();
@@ -41,11 +45,18 @@ class AVL_Tree {
   void inOrder(Node* n);
   void posOrder(Node* n);
   
+  // Get node height.
   int height(Node* n);
+  // Get Balance Factor.
   int balanceFactor(Node* n);
+  // Get the antecessor.
   void antecessor(Node* q, Node*& r);
-  void rightRotation(Node* n);
-  void leftRotation(Node* n);
+  void balance(Node* n);
+
+  Node* leftRotation(Node* n);
+  Node* rightRotation(Node* n);
+  Node* left_right_Rotation(Node* n);
+  Node* right_left_Rotation(Node* n);
   Node* root;
 };
 
