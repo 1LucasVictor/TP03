@@ -3,43 +3,44 @@
 #include <iostream>
 
 struct lCell {
-  Node *item;
-  lCell *next;
+  Node* item;
+  lCell* next;
 };
 
-class levelQueue{
-  public: 
-    levelQueue() {
-      first = nullptr;
+class levelQueue {
+ public:
+  levelQueue() {
+    first = nullptr;
+    last = first;
+    length = 0;
+  }
+
+  void insert(Node* n) {
+    length++;
+    if (first == nullptr) {
+      first = new lCell{n, nullptr};
       last = first;
-      length = 0;
+      return;
     }
+    last->next = new lCell{n, nullptr};
+    last = last->next;
+  }
 
-    void insert(Node *n) {
-      length++;
-      if(first == nullptr) {
-        first = new lCell{n, nullptr};
-        last = first;
-        return;
-      }
-      last->next = new lCell{n, nullptr};
-      last = last->next;
-    }
+  Node* remove() {
+    Node* aux;
+    if (length == 0)
+      return nullptr;
+    aux = first->item;
+    first = first->next;
+    length--;
+    return aux;
+  }
 
-    Node* remove() {
-      Node *aux;
-      if(length == 0)
-        return nullptr;
-      aux = first->item;
-      first = first->next;
-      length--;
-      return aux;
-    }
+  int length;
 
-    int length;
-  private:
-    lCell *first;
-    lCell *last;
+ private:
+  lCell* first;
+  lCell* last;
 };
 
 Node::Node() {
@@ -69,7 +70,7 @@ void AVL_Tree::walk(int mode) {
     posOrder(root);
   else
     levelOrder();
-  
+
   std::cout << '\n';
 }
 
@@ -99,32 +100,31 @@ void AVL_Tree::recursiveInsert(Node*& r, Node* parent, itemType item) {
     r->parent = parent;
     r->item = item;
   } else {
+    Node* n = r;
+    Node* parent;
 
-  Node *n = r;
-  Node *parent;
+    while (true) {
+      if (n->item.key == item.key)
+        return;
 
-  while (true) {
-    if (n->item.key == item.key)
-      return;
+      parent = n;
 
-    parent = n;
+      bool goLeft = n->item.key > item.key;
+      n = goLeft ? n->left : n->right;
 
-    bool goLeft = n->item.key > item.key;
-    n = goLeft ? n->left : n->right;
-
-    if (n == NULL) {
-      if (goLeft) {
-        parent->left = new Node();
-        parent->left->item = item;
-        parent->left->parent = parent;
-      } else {
-        parent->right = new Node();
-        parent->right->item = item;
-        parent->right->parent = parent;
+      if (n == NULL) {
+        if (goLeft) {
+          parent->left = new Node();
+          parent->left->item = item;
+          parent->left->parent = parent;
+        } else {
+          parent->right = new Node();
+          parent->right->item = item;
+          parent->right->parent = parent;
+        }
+        balance(parent);
+        break;
       }
-      balance(parent);
-      break;
-    }
     }
   }
   return;
@@ -143,19 +143,19 @@ void AVL_Tree::antecessor(Node* q, Node*& r) {
 void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
   if (root == nullptr)
     return;
-    
+
   Node
-   *n = root,
-   *parent = root,
-   *delNode = nullptr,
-   *child = root;
+      *n = root,
+      *parent = root,
+      *delNode = nullptr,
+      *child = root;
 
   while (child != nullptr) {
     parent = n;
     n = child;
     child = key >= n->item.key ? n->right : n->left;
     if (key == n->item.key) {
-     delNode = n;
+      delNode = n;
     }
   }
 
@@ -166,13 +166,13 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
     if (root->item.key == key) {
       root = child;
     } else {
-    if (parent->left == n) {
-      parent->left = child;
-    } else {
-      parent->right = child;
-    }
+      if (parent->left == n) {
+        parent->left = child;
+      } else {
+        parent->right = child;
+      }
 
-    balance(parent);
+      balance(parent);
     }
   }
 }
@@ -202,13 +202,13 @@ void AVL_Tree::recursiveClean(Node* n) {
 
 void AVL_Tree::levelOrder() {
   levelQueue q;
-  Node *p;
+  Node* p;
 
   q.insert(root);
-  while(q.length) {
+  while (q.length) {
     p = q.remove();
-    if(p != nullptr) {
-      std::cout << "Item: "<< p->item.value << " Altura: " << height(p) << " FB: " << p->balance <<'\n';
+    if (p != nullptr) {
+      std::cout <<  p->item.value << ' ';
       q.insert(p->left);
       q.insert(p->right);
     }
@@ -238,90 +238,85 @@ void AVL_Tree::posOrder(Node* n) {
   std::cout << n->item.value << ' ';
 }
 
-Node* AVL_Tree::leftRotation(Node *n) {
-    Node *rightChild = n->right;
-    rightChild->parent = n->parent;
-    n->right = rightChild->left;
+Node* AVL_Tree::leftRotation(Node* n) {
+  Node* rightChild = n->right;
+  rightChild->parent = n->parent;
+  n->right = rightChild->left;
 
-    if (n->right != NULL)
-        n->right->parent = n;
+  if (n->right != NULL)
+    n->right->parent = n;
 
-    rightChild->left = n;
-    n->parent = rightChild;
+  rightChild->left = n;
+  n->parent = rightChild;
 
-    if (rightChild->parent != NULL) {
-        if (rightChild->parent->right == n) {
-            rightChild->parent->right = rightChild;
-        }
-        else {
-            rightChild->parent->left = rightChild;
-        }
+  if (rightChild->parent != NULL) {
+    if (rightChild->parent->right == n) {
+      rightChild->parent->right = rightChild;
+    } else {
+      rightChild->parent->left = rightChild;
     }
+  }
 
-    n->balance = balanceFactor(n);
-    rightChild->balance = balanceFactor(rightChild);
-    return rightChild;
+  n->balance = balanceFactor(n);
+  rightChild->balance = balanceFactor(rightChild);
+  return rightChild;
 }
 
-Node* AVL_Tree::rightRotation(Node *n) {
-    Node *leftChild = n->left;
-    leftChild->parent = n->parent;
-    n->left = leftChild->right;
+Node* AVL_Tree::rightRotation(Node* n) {
+  Node* leftChild = n->left;
+  leftChild->parent = n->parent;
+  n->left = leftChild->right;
 
-    if (n->left != NULL)
-        n->left->parent = n;
+  if (n->left != NULL)
+    n->left->parent = n;
 
-    leftChild->right = n;
-    n->parent = leftChild;
+  leftChild->right = n;
+  n->parent = leftChild;
 
-    if (leftChild->parent != NULL) {
-        if (leftChild->parent->right == n) {
-            leftChild->parent->right = leftChild;
-        }
-        else {
-            leftChild->parent->left = leftChild;
-        }
+  if (leftChild->parent != NULL) {
+    if (leftChild->parent->right == n) {
+      leftChild->parent->right = leftChild;
+    } else {
+      leftChild->parent->left = leftChild;
     }
+  }
 
-    n->balance = balanceFactor(n);
-    leftChild->balance = balanceFactor(leftChild);
-    return leftChild;
+  n->balance = balanceFactor(n);
+  leftChild->balance = balanceFactor(leftChild);
+  return leftChild;
 }
 
-Node* AVL_Tree::left_right_Rotation(Node *n) {
-    n->left = leftRotation(n->left);
-    return rightRotation(n);
+Node* AVL_Tree::left_right_Rotation(Node* n) {
+  n->left = leftRotation(n->left);
+  return rightRotation(n);
 }
 
-Node* AVL_Tree::right_left_Rotation(Node *n) {
-    n->right = rightRotation(n->right);
-    return leftRotation(n);
+Node* AVL_Tree::right_left_Rotation(Node* n) {
+  n->right = rightRotation(n->right);
+  return leftRotation(n);
 }
 
-void AVL_Tree::balance(Node *n) {
-    n->balance = balanceFactor(n);
-    if (n->balance == -2) {
-        if (height(n->left->left) >= height(n->left->right))
-            n = rightRotation(n);
-        else
-            n = left_right_Rotation(n);
-    }
-    else if (n->balance == 2) {
-        if (height(n->right->right) >= height(n->right->left))
-            n = leftRotation(n);
-        else
-            n = right_left_Rotation(n);
-    }
+void AVL_Tree::balance(Node* n) {
+  n->balance = balanceFactor(n);
+  if (n->balance == -2) {
+    if (height(n->left->left) >= height(n->left->right))
+      n = rightRotation(n);
+    else
+      n = left_right_Rotation(n);
+  } else if (n->balance == 2) {
+    if (height(n->right->right) >= height(n->right->left))
+      n = leftRotation(n);
+    else
+      n = right_left_Rotation(n);
+  }
 
-    if (n->parent != NULL) {
-        balance(n->parent);
-    }
-    else {
-        root = n;
-    }
+  if (n->parent != NULL) {
+    balance(n->parent);
+  } else {
+    root = n;
+  }
 }
 
-AVL_Tree::~AVL_Tree()
-{
+AVL_Tree::~AVL_Tree() {
   clean();
 }
