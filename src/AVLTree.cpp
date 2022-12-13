@@ -104,14 +104,17 @@ void AVL_Tree::recursiveInsert(Node*& r, Node* parent, itemType item) {
     Node* parent;
 
     while (true) {
-      if (n->item.verbete == item.verbete) {
+      if (n->item.verbete == item.verbete && n->item.type == item.type ) {
         n->item.setMean(item.significados[0]);
         return;
       }
 
       parent = n;
-
-      bool goLeft = n->item.verbete > item.verbete;
+      
+      bool goLeft = (n->item.verbete > item.verbete);
+      if (n->item.verbete == item.verbete) {
+        goLeft = (n->item.type > item.type);
+      }
       n = goLeft ? n->left : n->right;
 
       if (n == NULL) {
