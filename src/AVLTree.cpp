@@ -57,11 +57,11 @@ void AVL_Tree::insert(itemType item) {
   recursiveInsert(this->root, nullptr, item);
 }
 
-void AVL_Tree::remove(keyType key) {
-  recursiveRemove(root, key);
+void AVL_Tree::remove(keyType key, string type) {
+  recursiveRemove(root, key, type);
 }
 
-void AVL_Tree::walk(int mode) {
+void AVL_Tree::print(int mode) {
   if (mode == 0)
     preOrder(root);
   else if (mode == 1)
@@ -74,8 +74,8 @@ void AVL_Tree::walk(int mode) {
   std::cout << '\n';
 }
 
-itemType AVL_Tree::search(keyType key) {
-  return recursiveSearch(root, key);
+itemType AVL_Tree::search(keyType key, string type) {
+  return recursiveSearch(root, key, type);
 }
 
 void AVL_Tree::clean() {
@@ -145,7 +145,7 @@ void AVL_Tree::antecessor(Node* q, Node*& r) {
   r = r->left;
 }
 
-void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
+void AVL_Tree::recursiveRemove(Node*& r, const keyType key, string type) {
   if (root == nullptr)
     return;
 
@@ -159,7 +159,7 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
     parent = n;
     n = child;
     child = key >= n->item.verbete ? n->right : n->left;
-    if (key == n->item.verbete) {
+    if (key == n->item.verbete && type == n->item.type) {
       delNode = n;
     }
   }
@@ -182,7 +182,7 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
   }
 }
 
-itemType AVL_Tree::recursiveSearch(Node* n, keyType key) {
+itemType AVL_Tree::recursiveSearch(Node* n, keyType key, string type) {
   if (n == nullptr) {
     itemType temp;
     temp.verbete = -1;
@@ -190,9 +190,13 @@ itemType AVL_Tree::recursiveSearch(Node* n, keyType key) {
   }
 
   if (key > n->item.verbete)
-    return recursiveSearch(n->right, key);
+    return recursiveSearch(n->right, key, type);
   else if (key < n->item.verbete)
-    return recursiveSearch(n->left, key);
+    return recursiveSearch(n->left, key, type);
+  else if(key == n->item.verbete && type > n->item.type)
+    return recursiveSearch(n->right, key, type);
+  else if(key == n->item.verbete && type < n->item.type)
+    return recursiveSearch(n->left, key, type);
   else
     return n->item;
 }
