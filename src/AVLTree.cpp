@@ -104,12 +104,14 @@ void AVL_Tree::recursiveInsert(Node*& r, Node* parent, itemType item) {
     Node* parent;
 
     while (true) {
-      if (n->item.key == item.key)
+      if (n->item.verbete == item.verbete) {
+        n->item.setMean(item.significados[0]);
         return;
+      }
 
       parent = n;
 
-      bool goLeft = n->item.key > item.key;
+      bool goLeft = n->item.verbete > item.verbete;
       n = goLeft ? n->left : n->right;
 
       if (n == NULL) {
@@ -153,8 +155,8 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
   while (child != nullptr) {
     parent = n;
     n = child;
-    child = key >= n->item.key ? n->right : n->left;
-    if (key == n->item.key) {
+    child = key >= n->item.verbete ? n->right : n->left;
+    if (key == n->item.verbete) {
       delNode = n;
     }
   }
@@ -163,7 +165,7 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
     delNode->item = n->item;
     child = n->left != nullptr ? n->left : n->right;
 
-    if (root->item.key == key) {
+    if (root->item.verbete == key) {
       root = child;
     } else {
       if (parent->left == n) {
@@ -180,13 +182,13 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key) {
 itemType AVL_Tree::recursiveSearch(Node* n, keyType key) {
   if (n == nullptr) {
     itemType temp;
-    temp.key = -1;
+    temp.verbete = -1;
     return temp;
   }
 
-  if (key > n->item.key)
+  if (key > n->item.verbete)
     return recursiveSearch(n->right, key);
-  else if (key < n->item.key)
+  else if (key < n->item.verbete)
     return recursiveSearch(n->left, key);
   else
     return n->item;
@@ -208,7 +210,7 @@ void AVL_Tree::levelOrder() {
   while (q.length) {
     p = q.remove();
     if (p != nullptr) {
-      std::cout <<  p->item.value << ' ';
+      p->item.print();
       q.insert(p->left);
       q.insert(p->right);
     }
@@ -218,7 +220,7 @@ void AVL_Tree::levelOrder() {
 void AVL_Tree::preOrder(Node* n) {
   if (n == nullptr)
     return;
-  std::cout << n->item.value << ' ';
+  n->item.print();
   preOrder(n->left);
   preOrder(n->right);
 }
@@ -226,7 +228,7 @@ void AVL_Tree::inOrder(Node* n) {
   if (n == nullptr)
     return;
   inOrder(n->left);
-  std::cout << n->item.value << ' ';
+  n->item.print();
   inOrder(n->right);
 }
 
@@ -235,7 +237,7 @@ void AVL_Tree::posOrder(Node* n) {
     return;
   posOrder(n->left);
   posOrder(n->right);
-  std::cout << n->item.value << ' ';
+  n->item.print();
 }
 
 Node* AVL_Tree::leftRotation(Node* n) {

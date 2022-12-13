@@ -1,12 +1,11 @@
 #ifndef AVLTREE
 #define AVLTREE
+#include "Palavra.hpp"
+#include <string>
+using namespace std;
+#define keyType string
+#define itemType Verbete
 
-#define keyType int
-
-struct itemType {
-  keyType key;
-  int value;
-};
 
 class Node {
   public:
