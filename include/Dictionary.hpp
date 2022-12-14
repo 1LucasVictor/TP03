@@ -1,29 +1,28 @@
 #ifndef DICTIONARY
 #define DICTIONARY
 #include <iostream>
-
+#include <fstream>
 #include "Palavra.hpp"
-#include "AVLTree.hpp"
-#include "Hash_EA.hpp"
 
 
-template <class T>
 class Dictionary {
  public:
-  Dictionary() {}
-  Verbete pesquisaDic(string key, string type) {
-    return dict.search(key, type);
+  Dictionary() {
+    this->M = 0;
   }
-  void insereDic(Verbete it) {
-    dict.insert(it);
+  Dictionary(int len) {
+    this->M = len;
   }
-  void imprimeDic() {
-    dict.print(1);
+  virtual Verbete search(std::string key, std::string type){
+    Verbete aux;
+    return aux;
   }
+  virtual void insert(Verbete it){}
+  virtual void print(std::fstream& out){}
+  virtual void remove(std::string key, std::string type){}
+  virtual void remove_all_with_mean(){}
   // void atualizaDic(Verbete it);
-  // void removeDic(Verbete it);
- private:
-  T dict;
+  int M;
 };
 
 #endif

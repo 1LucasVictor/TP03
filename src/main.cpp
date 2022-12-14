@@ -1,74 +1,68 @@
+#include <assert.h>
 #include <iostream>
+#include <sstream>
+#include <fstream>
+
 #include "AVLTree.hpp"
+#include "Hash_EA.hpp"
 #include "Dictionary.hpp"
 #include "Palavra.hpp"
 using namespace std;
 
-int main() {
-  // AVL_Tree tree;
+int main(int argc, char *argv[]) {
+  // Declaring all variables
+  string input, output, dictType;
+  fstream dataIn, dataOut;
+  int inputLen;
+  // Reading argv
+  for (int i = 1; i < argc; i += 2) {
+    if ((string)argv[i] == "-i") {
+      input = argv[i + 1];
+    } else if ((string)argv[i] == "-o") {
+      output = argv[i + 1];
+    } else if ((string)argv[i] == "-t") {
+      dictType = argv[i + 1];
+    }
+  }
+  // Assertions
+  assert(input.size()>0);
+  assert(output.size()>0);
+  assert(dictType == "hash" || dictType == "arv");
 
-  // tree.insert({3,3});
-  // tree.insert({20,20});
-  // tree.insert({10,10});  
-  // tree.insert({1,1});
-  // tree.insert({0,0});
-  // tree.insert({7,7});;
-  // tree.insert({18,18});
-  // tree.insert({21,21});
-  // tree.insert({25,25});
-  // tree.insert({0,0});
-  // tree.insert({22,22});
-  // tree.insert({30,30});
-  
-  // tree.walk(0);
-  // tree.walk(1);
-  // tree.walk(2);
-  // tree.walk(3);
+  // Open archives
+  dataIn.open(input, fstream::in);
+  dataOut.open(output, fstream::out);
 
-  // tree.remove(1);
-  // tree.remove(0);
-  // tree.remove(20);
-  // tree.remove(22);
+  // Getting number of lines in input
+  // dataIn.seekg (0, dataIn.end);
+  // inputLen = dataIn.tellg();
+  // dataIn.seekg (0, dataIn.beg);
+  inputLen = 5000;
+  // Crating the dictionary
+  Dictionary *dict;
+  if(dictType == "hash")
+   dict =  new Hash_EA{inputLen};
+  else dict = new AVL_Tree;
 
-  // // cout << "Nova arvore:\n";
-  // tree.walk(0);
-  // tree.walk(1);
-  // tree.walk(2);
-  // tree.walk(3);
-  Dictionary <AVL_Tree> d;
-  Verbete aux;
-  aux.setVerbete("amor");
-  aux.setMean("atração baseada no desejo sexual");
-  aux.setType("s");
-  d.insereDic(aux);
-  
-  aux.clear();
-  aux.setVerbete("amor");
-  aux.setMean("forte afeição por outra pessoa, nascida de laços de consanguinidade ou de relações sociais.");
-  aux.setType("s");
-  d.insereDic(aux);
+  //Inserting the words
+  string type, verb, mean, line;
+  int colchete;
+  while(getline(dataIn, line)) {
+    Verbete v;
+    mean = "";
+    type = line[0];
+    colchete = line.find("]");
+    verb = line.substr(3,colchete-3);
+    if(colchete+1 < line.size())
+      mean = line.substr(colchete+2,line.size());
+    v.setVerbete(verb);
+    v.setMean(mean);
+    v.setType(type);
 
-  aux.clear();
-  aux.setVerbete("applied");
-  aux.setMean("concerned with concrete problems or data");
-  aux.setType("s");
-  d.insereDic(aux);
-
-  aux.clear();
-  aux.setVerbete("attractive");
-  aux.setMean("pleasing to the eye or mind");
-  d.insereDic(aux);
-
-  aux.clear();
-  aux.setVerbete("bald");
-  aux.setMean("lacking hair");
-  d.insereDic(aux);
-
-  aux.clear();
-  aux.setVerbete("black");
-  aux.setMean("without cream or sugar");
-  d.insereDic(aux);
-
-  d.imprimeDic();
+    dict->insert(v);
+  }
+  dict->print(dataOut);
+  dict->remove_all_with_mean();
+  dict->print(dataOut); 
   return 0;
 }

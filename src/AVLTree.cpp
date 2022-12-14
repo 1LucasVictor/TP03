@@ -52,29 +52,34 @@ Node::Node() {
 
 AVL_Tree::AVL_Tree() {
   root = nullptr;
+  size = 0;
 }
 void AVL_Tree::insert(itemType item) {
   recursiveInsert(this->root, nullptr, item);
 }
 
-void AVL_Tree::remove(keyType key, string type) {
+void AVL_Tree::remove(string key, string type) {
   recursiveRemove(root, key, type);
 }
 
-void AVL_Tree::print(int mode) {
-  if (mode == 0)
-    preOrder(root);
-  else if (mode == 1)
-    inOrder(root);
-  else if (mode == 2)
-    posOrder(root);
-  else
-    levelOrder();
+// void AVL_Tree::print(int mode) {
+//   if (mode == 0)
+//     preOrder(root);
+//   else if (mode == 1)
+//     inOrder(root);
+//   else if (mode == 2)
+//     posOrder(root);
+//   else
+//     levelOrder();
 
-  std::cout << '\n';
+//   std::cout << '\n';
+// }
+
+void AVL_Tree::print(std::fstream& out) {
+    inOrder(root, out);
 }
 
-itemType AVL_Tree::search(keyType key, string type) {
+itemType AVL_Tree::search(string key, string type) {
   return recursiveSearch(root, key, type);
 }
 
@@ -105,6 +110,7 @@ void AVL_Tree::recursiveInsert(Node*& r, Node* parent, itemType item) {
 
     while (true) {
       if (n->item.verbete == item.verbete && n->item.type == item.type ) {
+        
         n->item.setMean(item.significados[0]);
         return;
       }
@@ -132,6 +138,7 @@ void AVL_Tree::recursiveInsert(Node*& r, Node* parent, itemType item) {
       }
     }
   }
+  size++;
   return;
 }
 
@@ -145,7 +152,7 @@ void AVL_Tree::antecessor(Node* q, Node*& r) {
   r = r->left;
 }
 
-void AVL_Tree::recursiveRemove(Node*& r, const keyType key, string type) {
+void AVL_Tree::recursiveRemove(Node*& r, const string key, string type) {
   if (root == nullptr)
     return;
 
@@ -158,13 +165,22 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key, string type) {
   while (child != nullptr) {
     parent = n;
     n = child;
-    child = key >= n->item.verbete ? n->right : n->left;
+    if(key > n->item.verbete)
+      child = n->right;
+    else if(key < n->item.verbete)
+      child = n->left;
+    else {
+      if(type < n->item.type) child = n->left;
+      else child = n->right;
+    }
+    // child = key >= n->item.verbete ? n->right : n->left;
     if (key == n->item.verbete && type == n->item.type) {
       delNode = n;
     }
   }
 
   if (delNode != nullptr) {
+    size--;
     delNode->item = n->item;
     child = n->left != nullptr ? n->left : n->right;
 
@@ -182,7 +198,7 @@ void AVL_Tree::recursiveRemove(Node*& r, const keyType key, string type) {
   }
 }
 
-itemType AVL_Tree::recursiveSearch(Node* n, keyType key, string type) {
+itemType AVL_Tree::recursiveSearch(Node* n, string key, string type) {
   if (n == nullptr) {
     itemType temp;
     temp.verbete = -1;
@@ -209,42 +225,61 @@ void AVL_Tree::recursiveClean(Node* n) {
   delete n;
 }
 
-void AVL_Tree::levelOrder() {
-  levelQueue q;
-  Node* p;
+// void AVL_Tree::levelOrder() {
+//   levelQueue q;
+//   Node* p;
 
-  q.insert(root);
-  while (q.length) {
-    p = q.remove();
-    if (p != nullptr) {
-      p->item.print();
-      q.insert(p->left);
-      q.insert(p->right);
-    }
+//   q.insert(root);
+//   while (q.length) {
+//     p = q.remove();
+//     if (p != nullptr) {
+//       p->item.print();
+//       q.insert(p->left);
+//       q.insert(p->right);
+//     }
+//   }
+// }
+
+// void AVL_Tree::preOrder(Node* n) {
+//   if (n == nullptr)
+//     return;
+//   n->item.print();
+//   preOrder(n->left);
+//   preOrder(n->right);
+// }
+void AVL_Tree::inOrder(Node* n, std::fstream& out) {
+  if (n == nullptr)
+    return;
+  inOrder(n->left, out);
+  n->item.print(out);
+  inOrder(n->right, out);
+}
+
+// void AVL_Tree::posOrder(Node* n) {
+//   if (n == nullptr)
+//     return;
+//   posOrder(n->left);
+//   posOrder(n->right);
+//   n->item.print();
+// }
+
+void AVL_Tree::remove_all_with_mean() {
+ Verbete *itens = new Verbete[size];
+ int n = 0;
+ getList(root, itens, n);
+ for(int i = 0; i < n; i++) {
+  if(itens[i].n) {
+    remove(itens[i].verbete, itens[i].type);
   }
+ }
 }
-
-void AVL_Tree::preOrder(Node* n) {
-  if (n == nullptr)
+void AVL_Tree::getList(Node* r, Verbete* v, int& n){
+  if (r == nullptr)
     return;
-  n->item.print();
-  preOrder(n->left);
-  preOrder(n->right);
-}
-void AVL_Tree::inOrder(Node* n) {
-  if (n == nullptr)
-    return;
-  inOrder(n->left);
-  n->item.print();
-  inOrder(n->right);
-}
-
-void AVL_Tree::posOrder(Node* n) {
-  if (n == nullptr)
-    return;
-  posOrder(n->left);
-  posOrder(n->right);
-  n->item.print();
+  getList(r->left, v, n);
+  getList(r->right, v, n);
+  v[n] = r->item;
+  n++;
 }
 
 Node* AVL_Tree::leftRotation(Node* n) {

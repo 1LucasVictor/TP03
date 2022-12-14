@@ -2,6 +2,7 @@
 #define PALAVRA
 #include <iostream>
 #include <string>
+#include <fstream>
 
 // ADT that represents a word mean;
 class Significado {
@@ -33,13 +34,15 @@ class Verbete {
   }
   // Reset
   void clear() {
-    this->verbete = " ";
+    this->verbete = "";
     n = 0;
   }
   // Add a new mean
   void setMean(std::string s) {
-    this->significados[n] = s;
-    n++;
+    if(s.size()){
+      this->significados[n] = s;
+      n++;
+    }
   }
   void setType(std::string s) {
     this->type = s;
@@ -49,10 +52,10 @@ class Verbete {
     this->verbete = v;
   }
   // Print the word and its means
-  void print() {
-    std::cout << this->verbete << " (" + type + ")\n";
+  void print(std::fstream& out) {
+    out << this->verbete << " (" + type + ")\n";
     for (int i = 0; i < n; i++) {
-      std::cout << i + 1 << ". " + significados[i] << '\n';
+      out << i + 1 << ". " + significados[i] << '\n';
     }
   }
   // Contains the word
